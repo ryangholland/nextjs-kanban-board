@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+The project is using Shadcn UI for components.
+The project is using Tailwind CSS for styling.
