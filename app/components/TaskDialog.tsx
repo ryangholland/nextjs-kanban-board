@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Task } from "@/types/kanban"
+import { useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,16 @@ export function TaskDialog({ open, onOpenChange, task, onSubmit }: TaskDialogPro
       assignee: task?.assignee || "",
     },
   })
+
+  useEffect(() => {
+    if (task) {
+      form.reset({
+        title: task.title,
+        description: task.description,
+        assignee: task.assignee || "",
+      })
+    }
+  }, [task, form])
 
   const handleSubmit = (values: TaskFormValues) => {
     onSubmit(values)

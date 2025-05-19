@@ -5,10 +5,10 @@ import { Card } from "@/components/ui/card"
 interface KanbanColumnProps {
   title: string
   tasks: Task[]
-  onUpdateAssignee: (taskId: string, assignee: string) => void
+  onEditTask: (task: Task) => void
 }
 
-export function KanbanColumn({ title, tasks, onUpdateAssignee }: KanbanColumnProps) {
+export function KanbanColumn({ title, tasks, onEditTask }: KanbanColumnProps) {
   return (
     <Card className="bg-muted/50 p-4">
       <div className="flex items-center justify-between mb-4">
@@ -19,7 +19,11 @@ export function KanbanColumn({ title, tasks, onUpdateAssignee }: KanbanColumnPro
       </div>
       <div className="flex flex-col gap-3">
         {tasks.map((task) => (
-          <KanbanCard key={task.id} task={task} onUpdateAssignee={onUpdateAssignee} />
+          <KanbanCard 
+            key={task.id} 
+            task={task} 
+            onEditTask={onEditTask}
+          />
         ))}
         {tasks.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">

@@ -9,6 +9,7 @@ import { Plus } from "lucide-react"
 
 export default function KanbanBoard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | undefined>(undefined)
   const [tasks, setTasks] = useState<{
     todos: Task[]
     inProgress: Task[]
@@ -25,20 +26,6 @@ export default function KanbanBoard() {
     ],
   })
 
-  const handleUpdateAssignee = (taskId: string, assignee: string) => {
-    setTasks(prev => ({
-      todos: prev.todos.map(task => 
-        task.id === taskId ? { ...task, assignee } : task
-      ),
-      inProgress: prev.inProgress.map(task => 
-        task.id === taskId ? { ...task, assignee } : task
-      ),
-      done: prev.done.map(task => 
-        task.id === taskId ? { ...task, assignee } : task
-      ),
-    }))
-  }
-
   const handleCreateTask = (values: Omit<Task, 'id'>) => {
     const newTask: Task = {
       ...values,
@@ -47,6 +34,21 @@ export default function KanbanBoard() {
     setTasks(prev => ({
       ...prev,
       todos: [...prev.todos, newTask],
+    }))
+  }
+
+  const handleEditTask = (values: Omit<Task, 'id'>) => {
+    if (!editingTask) return
+    setTasks(prev => ({
+      todos: prev.todos.map(task => 
+        task.id === editingTask.id ? { ...task, ...values } : task
+      ),
+      inProgress: prev.inProgress.map(task => 
+        task.id === editingTask.id ? { ...task, ...values } : task
+      ),
+      done: prev.done.map(task => 
+        task.id === editingTask.id ? { ...task, ...values } : task
+      ),
     }))
   }
 
@@ -70,26 +72,30 @@ export default function KanbanBoard() {
             <KanbanColumn 
               title="Todo" 
               tasks={tasks.todos} 
-              onUpdateAssignee={handleUpdateAssignee}
+              onEditTask={setEditingTask}
             />
             <KanbanColumn 
               title="In Progress" 
               tasks={tasks.inProgress} 
-              onUpdateAssignee={handleUpdateAssignee}
+              onEditTask={setEditingTask}
             />
             <KanbanColumn 
               title="Done" 
               tasks={tasks.done} 
-              onUpdateAssignee={handleUpdateAssignee}
+              onEditTask={setEditingTask}
             />
           </div>
         </div>
       </main>
 
       <TaskDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSubmit={handleCreateTask}
+        open={isDialogOpen || !!editingTask}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open)
+          if (!open) setEditingTask(undefined)
+        }}
+        onSubmit={editingTask ? handleEditTask : handleCreateTask}
+        task={editingTask}
       />
     </div>
   )
