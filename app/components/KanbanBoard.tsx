@@ -3,8 +3,12 @@
 import { Task } from "@/types/kanban"
 import { KanbanColumn } from "./KanbanColumn"
 import { useState } from "react"
+import { TaskDialog } from "./TaskDialog"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
 
 export default function KanbanBoard() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tasks, setTasks] = useState<{
     todos: Task[]
     inProgress: Task[]
@@ -35,11 +39,58 @@ export default function KanbanBoard() {
     }))
   }
 
+  const handleCreateTask = (values: Omit<Task, 'id'>) => {
+    const newTask: Task = {
+      ...values,
+      id: Math.random().toString(36).substr(2, 9),
+    }
+    setTasks(prev => ({
+      ...prev,
+      todos: [...prev.todos, newTask],
+    }))
+  }
+
   return (
-    <div className="flex justify-center gap-6 p-6 overflow-x-auto min-h-screen">
-      <KanbanColumn title="Todo" tasks={tasks.todos} onUpdateAssignee={handleUpdateAssignee} />
-      <KanbanColumn title="In Progress" tasks={tasks.inProgress} onUpdateAssignee={handleUpdateAssignee} />
-      <KanbanColumn title="Done" tasks={tasks.done} onUpdateAssignee={handleUpdateAssignee} />
+    <div className="flex flex-col h-screen bg-background">
+      {/* Fixed Header */}
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Kanban Board</h1>
+          <Button onClick={() => setIsDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Task
+          </Button>
+        </div>
+      </header>
+
+      {/* Scrollable Content */}
+      <main className="flex-1 overflow-x-auto overflow-y-auto p-6">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[calc(100vh-10rem)]">
+            <KanbanColumn 
+              title="Todo" 
+              tasks={tasks.todos} 
+              onUpdateAssignee={handleUpdateAssignee}
+            />
+            <KanbanColumn 
+              title="In Progress" 
+              tasks={tasks.inProgress} 
+              onUpdateAssignee={handleUpdateAssignee}
+            />
+            <KanbanColumn 
+              title="Done" 
+              tasks={tasks.done} 
+              onUpdateAssignee={handleUpdateAssignee}
+            />
+          </div>
+        </div>
+      </main>
+
+      <TaskDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSubmit={handleCreateTask}
+      />
     </div>
   )
 } 
